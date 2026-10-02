@@ -4,13 +4,13 @@ const routes = Router();
 
 
 routes.get("/", (request, response) => {
-    return response.status(200).json({ message: "Hello World!" });
+  return response.status(200).json({ message: "Hello World!" });
 });
 
 routes.get("/rng", (request, response) => {
-    const number = Math.floor(Math.random() * 10) + 1;
-        console.log(number);
-    return response.status(200).json(number);
+  const number = Math.floor(Math.random() * 10) + 1;
+  console.log(number);
+  return response.status(200).json(number);
 });
 
 routes.get("/fibonacci/:quantidade", (request, response) => {
