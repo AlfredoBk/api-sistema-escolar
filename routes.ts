@@ -2,6 +2,21 @@ import { Router } from "express";
 
 const routes = Router();
 
+type Aluno = {
+  nome: string;
+  idade: number;
+  cpf?: string;
+  media?: number;
+  status?: string;
+};
+
+const alunos: Aluno[] = [
+  { nome: "A", idade: 20 },
+  { nome: "B", idade: 19 },
+  { nome: "C", idade: 18 },
+  { nome: "D", idade: 17 },
+];
+
 
 routes.get("/", (request, response) => {
   return response.status(200).json({ message: "Hello World!" });
@@ -51,44 +66,38 @@ routes.post("/aluno", (request, response) => {
   const { nome, cpf, idade, media } = request.body;
 
   const status = media > 6 ? "Aprovado" : "Reprovado";
+  const aluno: Aluno = { nome, cpf, idade, media, status };
+  alunos.push(aluno);
 
-  return response.status(201).json({
-    nome,
-    cpf,
-    idade,
-    status,
-  });
+  return response.status(201).json(aluno);
 });
 
 routes.put("/aluno/:id", (request, response) => {
-  const alunos = [
-    { nome: "A", idade: 20 },
-    { nome: "B", idade: 19 },
-    { nome: "C", idade: 18 },
-    { nome: "D", idade: 17 },
-  ];
-
-  const { id } = request.params;
+  const index = Number(request.params.id);
   const { nome } = request.body;
 
-  const aluno = alunos[+id];
+  if (!Number.isInteger(index) || index < 0 || index >= alunos.length) {
+    return response.status(404).json({ message: "Aluno não encontrado" });
+  }
+
+  const aluno = alunos[index];
+  if (!aluno) {
+    return response.status(404).json({ message: "Aluno não encontrado" });
+  }
+
   aluno.nome = nome;
 
   return response.status(200).json(aluno);
-
 });
 
 routes.delete("/aluno/:id", (request, response) => {
-  const alunos = [
-    { nome: "A", idade: 20 },
-    { nome: "B", idade: 19 },
-    { nome: "C", idade: 18 },
-    { nome: "D", idade: 17 },
-  ];
+  const index = Number(request.params.id);
 
-  const { id } = request.params;
-  const novalista = alunos.splice(+id, 1);
+  if (!Number.isInteger(index) || index < 0 || index >= alunos.length) {
+    return response.status(404).json({ message: "Aluno não encontrado" });
+  }
 
+  alunos.splice(index, 1);
   return response.status(200).json(alunos);
 });
 
