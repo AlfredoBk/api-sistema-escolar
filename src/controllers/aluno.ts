@@ -76,16 +76,16 @@ export default {
                     id: +id,
                 },
                 data: {
-                    nome,
                     matricula,
                     cpf,
+                    nome,
                     nascimento: nascimento ? new Date(nascimento) : undefined,
                     email,
                     telefone,
-                    endereco
-                }
+                    endereco,
+                },
             });
-          return response.status(200).json(aluno);
+            return response.status(200).json(aluno);
         } catch (e) {
             return handleErrors(e, response);
         }

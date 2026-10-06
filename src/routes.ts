@@ -13,6 +13,6 @@ routes.get("/", (request, response) => {
 routes.get("/alunos", alunoController.list);
 routes.get("/alunos/:id", alunoController.getById);
 routes.post("/alunos", alunoController.create);
-routes.put("/alunos/:id");
+routes.put("/alunos/:id", alunoController.update);
   
 export default routes;
