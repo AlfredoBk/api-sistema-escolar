@@ -1,30 +1,35 @@
-import { Request, Response } from 'express';
-import bcrypt from 'bcrypt';
+import { Request, Response } from "express";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import { prisma } from "../../config/prisma";
 import { handleErrors } from "../helpers/handleErrors";
 
 export default {
-    async list(request: Request, response: Response) {
+    login: async (request: Request, response: Response) => {
         try {
 
             const { email, senha } = request.body;
 
             if (!email || !senha) {
-                return response.status(400).json("Dados incompletos");
+                return response.status(400).json({ message: "Dados incompletos" });
             }
 
             const funcionario = await prisma.funcionario.findUnique({
                 where: {
-                    email: email,
+                    email,
                 },
             });
 
-            if (!funcionario) {
-                return response.status(404).json("email e/ou senha incorretos");
+            if (!funcionario || !bcrypt.compareSync(senha, funcionario.senha)) {
+                return response.status(401).json({ message: "email e/ou senha incorretos" });
             }
 
+            const secret = process.env.JWT_SECRET ?? "sistema-escolar-dev-secret";
+            const token = jwt.sign({ id: funcionario.id, cargo: funcionario.cargo  }, secret, { expiresIn: "1d" });
+
+            return response.status(200).json(token);
         } catch (e) {
-            handleErrors(e, response);
+            return handleErrors(e, response);
         }
     },
     

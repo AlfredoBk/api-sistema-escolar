@@ -31,7 +31,6 @@ routes.post("/matriculas/:id", matriculaController.create);
 routes.delete("/matriculas/:id", matriculaController.delete);
 
 // rota dos funcionários
-routes.get("/funcionários", funcionarioController.list);
-
+routes.post("/login", funcionarioController.login);
 
 export default routes;
