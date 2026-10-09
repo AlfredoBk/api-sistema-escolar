@@ -20,12 +20,23 @@ export function authentication(
             return response.status(401).json("Não autenticado");
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+        const secret = process.env.JWT_SECRET ?? "sistema-escolar-dev-secret";
+        const decoded = jwt.verify(token, secret);
+
+        if (
+            typeof decoded !== "object" ||
+            decoded === null ||
+            !Number.isInteger(decoded.id) ||
+            typeof decoded.cargo !== "string"
+        ) {
+            return response.status(401).json("Não autenticado");
+        }
 
         if (!request.body) {
             request.body = {};
         }
 
+        request.body.user = decoded;
         next();
     } catch (e) {
         console.error(e);

@@ -5,6 +5,161 @@ import { prisma } from "../../config/prisma";
 import { handleErrors } from "../helpers/handleErrors";
 
 export default {
+    list: async (request: Request, response: Response) => {
+        try {
+            const funcionarios = await prisma.funcionario.findMany({
+                select: {
+                    id: true,
+                    nome: true,
+                    email: true,
+                    cargo: true,
+                    nascimento: true,
+                    cpf: true,
+                    telefone: true,
+                    endereco: true,
+                },
+            });
+            return response.status(200).json(funcionarios);
+        } catch (e) {
+            return handleErrors(e, response);
+        }
+    },
+
+    getById: async (request: Request, response: Response) => {
+        try {
+            const id = Number(request.params.id);
+
+            if (!Number.isInteger(id)) {
+                return response.status(400).json({ error: "ID inválido" });
+            }
+
+            const funcionario = await prisma.funcionario.findUnique({
+                where: { id },
+                select: {
+                    id: true,
+                    nome: true,
+                    email: true,
+                    cargo: true,
+                    nascimento: true,
+                    cpf: true,
+                    telefone: true,
+                    endereco: true,
+                },
+            });
+
+            return response.status(200).json(funcionario);
+        } catch (e) {
+            return handleErrors(e, response);
+        }
+    },
+
+    create: async (request: Request, response: Response) => {
+        try {
+            const { nome, email, cargo, nascimento, cpf, senha, telefone, endereco } = request.body;
+
+            if (!nome || !email || !cargo || !cpf || !senha) {
+                return response.status(400).json("Dados do funcionário incompletos");
+            }
+
+            const funcionario = await prisma.funcionario.create({
+                data: {
+                    nome,
+                    email,
+                    cargo,
+                    nascimento: nascimento ? new Date(nascimento) : undefined,
+                    cpf,
+                    senha: bcrypt.hashSync(senha, Number(process.env.BCRYPT_ROUNDS ?? 10)),
+                    telefone,
+                    endereco,
+                },
+                select: {
+                    id: true,
+                    nome,
+                    email,
+                    cargo,
+                    nascimento,
+                    cpf,
+                    telefone,
+                    endereco,
+                },
+            });
+            return response.status(201).json(funcionario);
+        } catch (e) {
+            return handleErrors(e, response);
+        }
+    },
+
+    update: async (request: Request, response: Response) => {
+        try {
+            const id = Number(request.params.id);
+            const { nome, email, cargo, nascimento, cpf, senha, telefone, endereco } = request.body;
+
+            if (
+                cargo !== undefined &&
+                request.body.user.id === id &&
+                request.body.user.cargo !== "Administrador"
+            ) {
+                return response.status(403).json("Acesso negado");
+            }
+
+            const funcionario = await prisma.funcionario.update({
+                where: {
+                    id: +id,
+                },
+                data: {
+                    nome,
+                    email,
+                    cargo,
+                    nascimento: nascimento ? new Date(nascimento) : undefined,
+                    cpf,
+                    senha: senha
+                        ? bcrypt.hashSync(senha, Number(process.env.BCRYPT_ROUNDS ?? 10))
+                        : undefined,
+                    telefone,
+                    endereco,
+                },
+                select: {
+                    id: true,
+                    nome: true,
+                    email: true,
+                    cargo: true,
+                    nascimento: true,
+                    cpf: true,
+                    telefone: true,
+                    endereco: true,
+                },
+            });
+            return response.status(200).json(funcionario);
+        } catch (e) {
+            return handleErrors(e, response);
+        }
+    },
+
+    delete: async (request: Request, response: Response) => {
+        try {
+            const id = Number(request.params.id);
+
+            const funcionario = await prisma.funcionario.delete({
+                where: {
+                    id: +id,
+                },
+                select: {
+                    id: true,
+                    nome: true,
+                    email: true,
+                    cargo: true,
+                    nascimento: true,
+                    cpf: true,
+                    telefone: true,
+                    endereco: true,
+                },
+            });
+            return response.status(200).json(funcionario);
+        } catch (e) {
+            return handleErrors(e, response);
+        }
+    },
+
     login: async (request: Request, response: Response) => {
         try {
 
@@ -30,7 +185,7 @@ export default {
             return response.status(200).json(token);
         } catch (e) {
             return handleErrors(e, response);
-        }
+        } 
     },
     
 };

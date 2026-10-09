@@ -4,6 +4,7 @@ import cursoController from "./controllers/curso";
 import matriculaController from "./controllers/matricula";
 import funcionarioController from "./controllers/funcionario"; 
 import { authentication } from "./middlewares/authentication";
+import { isAdministrator, permissions } from "./middlewares/permissions";
 
 // Inicializa o router
 const routes = Router();
@@ -31,7 +32,13 @@ routes.delete("/cursos/:id", authentication, cursoController.delete);
 routes.post("/matriculas/:id", authentication, matriculaController.create);
 routes.delete("/matriculas/:id", authentication, matriculaController.delete);
 
-// rota dos funcionários
+// Rotas dos funcionários
+routes.get("/funcionarios", authentication, permissions, funcionarioController.list);
+routes.get("/funcionarios/:id", authentication, isAdministrator, funcionarioController.getById);
+routes.post("/funcionarios", authentication, permissions, funcionarioController.create);
+routes.put("/funcionarios/:id", authentication, isAdministrator, funcionarioController.update);
+routes.delete("/funcionarios/:id", authentication, isAdministrator, funcionarioController.delete);
+
 routes.post("/login", funcionarioController.login);
 
 export default routes;
