@@ -12,7 +12,7 @@ export function isAdministrator(
     }
 }
 
-export function isAdministrator(
+export function permissions(
     request: Request,
     response: Response,
     next: NextFunction,
